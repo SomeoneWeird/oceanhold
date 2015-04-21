@@ -1,0 +1,29 @@
+{
+  "name": "oceanhold",
+  "bin": {
+    "oceanhold": "bin/oceanhold"
+  },
+  "preferGlobal": true,
+  "version": "1.0.0",
+  "description": "Experimental process sandboxing with node",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SomeoneWeird/oceanhold.git"
+  },
+  "author": "Adam Brady <adam@boxxen.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SomeoneWeird/oceanhold/issues"
+  },
+  "homepage": "https://github.com/SomeoneWeird/oceanhold",
+  "dependencies": {
+    "babel": "^5.1.11",
+    "blessed": "^0.1.5",
+    "frida": "^3.0.1",
+    "yargs": "^3.7.2"
+  }
+}
