@@ -141,7 +141,14 @@ function selectProcess(el) {
       throw new Error("invalid process");
     }
 
-    console.log(p);
+    var shortName = p.COMMAND.length > 20 ? p.COMMAND.substr(0, 20) + "..." : p.COMMAND;
+
+    nameBox.content = p.PID + " - " + shortName;
+    nameBox.show();
+
+    parentBox.focus();
+
+    screen.render();
 
   });
 
