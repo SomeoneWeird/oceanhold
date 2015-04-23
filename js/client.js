@@ -22,7 +22,7 @@ recv('getExports', function(name) {
     onMatch: function(export) {
       exports.push(export);
     },
-    onComplete: functon() {
+    onComplete: function() {
       send('getExports-' + name, exports);
     }
   });

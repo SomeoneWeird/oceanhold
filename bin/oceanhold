@@ -11,7 +11,10 @@ var args = require('yargs')
             .usage('Usage: $0')
             .argv;
 
-var processes = require(path.resolve(__dirname, "../lib/processes"));
+var getProcesses = require(path.resolve(__dirname, "../lib/processes"));
+var Process = require(path.resolve(__dirname, "../lib/process"));
+
+var processes = {};
 
 var screen = blessed.screen({
   autoPadding: true,
@@ -106,7 +109,7 @@ var processList = [];
 
 function refreshProcessList() {
 
-  processes(function(e, processListData) {
+  getProcesses(function(e, processListData) {
 
     processList = processListData;
 
@@ -156,14 +159,14 @@ screen.render();
 function selectProcess(el) {
 
   // hacks until i figure out a better way
-  var process = el.content.split(/\s+/);
+  var data = el.content.split(/\s+/);
 
-  screen.title = "oceanhold - " + process[0];
+  screen.title = "oceanhold - " + data[0];
 
-  processes(function(e, processList) {
+  getProcesses(function(e, processList) {
 
     for(var i = 0; i < processList.length; i++) {
-      if(processList[i].PID == process[0]) {
+      if(processList[i].PID == data[0]) {
         p = processList[i];
       }
     }
@@ -173,16 +176,27 @@ function selectProcess(el) {
       throw new Error("invalid process");
     }
 
-    var shortName = p.COMMAND.length > 20 ? p.COMMAND.substr(0, 20) + "..." : p.COMMAND;
+    var process = new Process(p);
 
-    nameBox.content = p.PID + " - " + shortName;
-    nameBox.show();
+    process.inject(function(err) {
 
-    actionBar.show();
+      if(err) {
+        console.error("Error injecting process:", err);
+        return process.exit(1);
+      }
 
-    actionBar.focus();
+      var shortName = p.COMMAND.length > 20 ? p.COMMAND.substr(0, 20) + "..." : p.COMMAND;
 
-    screen.render();
+      nameBox.content = p.PID + " - " + shortName;
+      nameBox.show();
+
+      actionBar.show();
+
+      actionBar.focus();
+
+      screen.render();
+
+    });   
 
   });
 
