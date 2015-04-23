@@ -58,11 +58,27 @@ var parentBox = blessed.box({
   height: '100%'
 });
 
+var nameBox = blessed.box({
+  parent: parentBox,
+  align: 'center',
+  width: 'shrink',
+  height: 'shrink',
+  content: '...'
+});
+
+parentBox.append(nameBox);
+
+nameBox.hide();
+
 screen.append(parentBox);
+
+var processList = [];
 
 function refreshProcessList() {
 
   processes(function(e, processListData) {
+
+    processList = processListData;
 
     processListData = processListData.map(function(entry) {
       if(!entry.PID || !entry.COMMAND) return false;
@@ -93,8 +109,8 @@ screen.append(table);
 
 table.focus();
 
-table.on('select', function(one) {
-  console.log(JSON.stringify(one));
+table.on('select', function(selected) {
+  selectProcess(selected);
 });
 
 screen.key(['C-c'], function(ch, key) {
@@ -106,3 +122,27 @@ screen.key([ 'r' ], function(ch, key) {
 });
 
 screen.render();
+
+function selectProcess(el) {
+
+  // hacks until i figure out a better way
+  var process = el.content.split(/\s+/);
+
+  processes(function(e, processList) {
+
+    for(var i = 0; i < processList.length; i++) {
+      if(processList[i].PID == process[0]) {
+        p = processList[i];
+      }
+    }
+
+    if(!p) {
+      // process has probably died
+      throw new Error("invalid process");
+    }
+
+    console.log(p);
+
+  });
+
+}
