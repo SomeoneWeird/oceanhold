@@ -60,15 +60,45 @@ var parentBox = blessed.box({
 
 var nameBox = blessed.box({
   parent: parentBox,
+  left: '0',
   align: 'center',
   width: 'shrink',
   height: 'shrink',
   content: '...'
 });
 
-parentBox.append(nameBox);
+var actionBar = blessed.listbar({
+  parent: parentBox,
+  align: 'left',
+  width: "100%",
+  height: "10%",
+  border: 'line',
+  bottom: 0,
+  style: {
+    bg: 'green',
+    item: {
+      bg: 'red',
+      hover: {
+        bg: 'blue'
+      },
+      focus: {
+       bg: 'blue'
+      }
+    },
+    selected: {
+      bg: 'blue'
+    }
+  },
+  commands: {
+    'action': function() {
+      console.log('lol action');
+      screen.render();
+    }
+  }
+})
 
 nameBox.hide();
+actionBar.hide();
 
 screen.append(parentBox);
 
@@ -128,6 +158,8 @@ function selectProcess(el) {
   // hacks until i figure out a better way
   var process = el.content.split(/\s+/);
 
+  screen.title = "oceanhold - " + process[0];
+
   processes(function(e, processList) {
 
     for(var i = 0; i < processList.length; i++) {
@@ -146,7 +178,9 @@ function selectProcess(el) {
     nameBox.content = p.PID + " - " + shortName;
     nameBox.show();
 
-    parentBox.focus();
+    actionBar.show();
+
+    actionBar.focus();
 
     screen.render();
 
