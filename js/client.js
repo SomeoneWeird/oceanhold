@@ -8,31 +8,59 @@ recv('getModules', function() {
       modules.push(module);
     },
     onComplete: function() {
-      send('getModules', modules);
+      send({
+        name: "getModules",
+        data: modules
+      });
     }
   });
 
 });
 
-recv('getExports', function(name) {
+var listenGetExports = function() {
 
-  var exports = [];
+  recv('getExports', function(data) {
 
-  Module.enumerateExports(name, { 
-    onMatch: function(export) {
-      exports.push(export);
-    },
-    onComplete: function() {
-      send('getExports-' + name, exports);
-    }
+    listenGetExports();
+
+    var name = data.payload.name;
+
+    var data = [];
+
+    var fin = false;
+
+    setTimeout(function() {
+      if(!fin) {
+        send({
+          name: 'getExports-' + name,
+          data: []
+        });
+      }
+    }, 1000);
+
+    Module.enumerateExports(name, { 
+      onMatch: function(e) {
+        data.push(e);
+      },
+      onComplete: function() {
+        fin = true;
+        send({
+          name: 'getExports-' + name,
+          data: data
+        });
+      }
+    });
+
   });
 
 }
 
+listenGetExports();
+
 recv('replaceFunction', function(address, fn, returnType, argTypes) {
 
-  address    = typeof address === 'string' : ptr(address) ? address;
-  fn         = typeof fn !== 'function' : new Function(fn) : fn;
+  address    = typeof address === 'string' ? ptr(address) : address;
+  fn         = typeof fn !== 'function' ? new Function(fn) : fn;
   returnType = returnType = 'void';
   argTypes   = argTypes || [];
 
@@ -46,7 +74,7 @@ recv('hookFunction', function(address, fn) {
 
   var addressPtr = ptr(address);
 
-  fn = typeof fn !== 'function' : new Function(fn) : fn;
+  fn = typeof fn !== 'function' ? new Function(fn) : fn;
 
   Interceptor.attach(addressPtr, {
     onEnter: function(args) {

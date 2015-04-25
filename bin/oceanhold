@@ -194,6 +194,12 @@ function selectProcess(el) {
 
       actionBar.focus();
 
+      process.on('call', function(one, two) {
+        console.log("*******", one, two);
+      });
+
+      process.trackCalls();
+
       screen.render();
 
     });   
