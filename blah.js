@@ -27,11 +27,34 @@ getProcesses(function(e, processList) {
       return process.exit(1);
     }
 
-    process.on('call', function(one, two) {
-      console.log("*******", one, two);
-    });
+    process.fetchExports(function() {
 
-    process.trackCalls();
+      console.log("Process has loaded %d modules.", Object.keys(process.externalModules).length);
+
+      process.on('call', function(call) {
+
+        var module = process.externalModules[call.module];
+
+        var n;
+
+        for(var i = 0; i < module.exports.length; i++) {
+          if(module.exports[i].name == call.name) {
+            n = module.exports[i];
+          }
+        }
+
+        if(!n) {
+          console.error("Unknown call:", call);
+          return;
+        }
+
+        console.log("Process called: %s:%s %s", module.name, n.name, "0x" + n.address.toString(16));
+
+      });
+
+      process.trackCalls("hello");
+
+    });
 
   });   
 
